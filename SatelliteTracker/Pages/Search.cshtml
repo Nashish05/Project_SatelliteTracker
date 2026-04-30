@@ -1,0 +1,11 @@
+﻿@page
+@model SatelliteTracker.Pages.SearchModel
+
+<h2>Satelliti sopra Milano</h2>
+
+<ul>
+    @foreach (var sat in Model.Satellites)
+    {
+        <li>@sat.SatName (ID: @sat.SatId)</li>
+    }
+</ul>
