@@ -1,0 +1,19 @@
+﻿@page
+@model SatelliteTracker.Pages.PreferitiModel
+
+<h2>Satelliti Preferiti</h2>
+
+<ul>
+    @foreach (var sat in SearchModel.Preferiti)
+    {
+        <li>
+            @sat.SatName (ID: @sat.SatId)
+
+            <form method="post"  asp-page-handler="Remove" style="display:inline;">
+                <input type="hidden" name="satId" value="@sat.SatId"/>
+                <button type="submit">cancella</button>
+            </form>
+
+        </li>
+    }
+</ul>
