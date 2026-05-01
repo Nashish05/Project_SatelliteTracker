@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using SatelliteTracker.Data;
 using SatelliteTracker.Models;
 
 namespace SatelliteTracker.Pages;
@@ -7,20 +8,20 @@ namespace SatelliteTracker.Pages;
 public class SearchModel : PageModel
 {
     private readonly SatelliteService _service;
-    public static List<Satellite> Preferiti = new();
-
-    public IActionResult OnPost(int satId , string satName)
+    private readonly AppDbContext _context;
+    public IActionResult OnPost(int satId, string satName)
     {
-        Preferiti.Add(new Satellite { SatId = satId, SatName = satName });
-
+        _context.Satellites.Add(new Satellite { SatId = satId, SatName = satName });
+        _context.SaveChanges();
         return RedirectToPage();
     }
 
     public List<Satellite> Satellites { get; set; } = new();
 
-    public SearchModel(SatelliteService service)
+    public SearchModel(SatelliteService service, AppDbContext context)
     {
         _service = service;
+        _context = context;
     }
 
     public async Task OnGetAsync()

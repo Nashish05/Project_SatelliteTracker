@@ -4,7 +4,7 @@
 <h2>Satelliti Preferiti</h2>
 
 <ul>
-    @foreach (var sat in SearchModel.Preferiti)
+    @foreach (var sat in Model.Satellites)
     {
         <li>
             @sat.SatName (ID: @sat.SatId)
