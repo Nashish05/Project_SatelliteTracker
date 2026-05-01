@@ -16,10 +16,10 @@ public class SatelliteService
         double lat = 45.4642;
         double lng = 9.1900;
         int alt = 0;
-        int radius = 90; 
+        int radius = 10; 
         int category = 0;
 
-        string url = $"https://api.n2yo.com/rest/v1/satellite/above/{lat}/{lng}/{alt}/{radius}/{category}&apiKey={apiKey}";
+        string url = $"https://api.n2yo.com/rest/v1/satellite/above/{lat}/{lng}/{alt}/{radius}/{category}/&apiKey={apiKey}";
 
         var response = await _http.GetStringAsync(url);
 

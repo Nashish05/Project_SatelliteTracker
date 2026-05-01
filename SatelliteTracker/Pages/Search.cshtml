@@ -6,6 +6,25 @@
 <ul>
     @foreach (var sat in Model.Satellites)
     {
-        <li>@sat.SatName (ID: @sat.SatId)</li>
+        <li>
+            @sat.SatName (ID: @sat.SatId)
+
+            <form method="post" style="display:inline;">
+                <input type="hidden" name="satId" value="@sat.SatId" />
+                <input type="hidden" name="satName" value="@sat.SatName" />
+                <button type="submit">clicca</button>
+            </form>
+            
+        </li>
     }
+
+    <h3>DEBUG Preferiti</h3>
+
+    <ul>
+        @foreach (var sat in SearchModel.Preferiti)
+        {
+            <li>@sat.SatName (@sat.SatId)</li>
+        }
+    </ul>
 </ul>
+
