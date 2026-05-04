@@ -32,4 +32,23 @@ public class SatelliteService
 
         return data?.above ?? new List<Satellite>();
     }
+    public async Task<SatellitePosition> GetSatellitePosition(int satId)
+    {
+        double lat = 45.4642;
+        double lng = 9.1900;
+        string url = $"https://api.n2yo.com/rest/v1/satellite/positions/{satId}/{lat}/{lng}/0/1/&apiKey={apiKey}";
+        var response = await _http.GetStringAsync(url);
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+        var data = JsonSerializer.Deserialize<PositionResponse>(response, options);
+        var pos = data.positions[0];
+
+        return new SatellitePosition
+        {
+            latitude = pos.satlatitude,
+            longitude = pos.satlongitude
+        };
+    }
 }
