@@ -23,22 +23,29 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
-    var satellites = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Satellites));
+    var mappa = L.map('map').setView([20, 0], 2);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(mappa);
 
-    var map = L.map('map').setView([20, 0], 2);
+    var satelliti = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+                Model.Satellites
+                        .Where(s => s.SatLat != null && s.SatLng != null)
+                        .Select(s => new { id = s.SatId, nome = s.SatName, lat = s.SatLat, lng = s.SatLng })
+        ));
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
-        .addTo(map);
+    var segnaposti = satelliti.map(s =>
+        L.marker([s.lat, s.lng]).addTo(mappa).bindPopup("🛰️ " + s.nome)
+    );
 
-    satellites.forEach(sat => {
-        if (sat.satlat != null && sat.satlng != null) {
-            L.marker([sat.satlat, sat.satlng])
-                .addTo(map)
-                .bindPopup("🛰️ " + sat.satname);
-        }
-    });
-
-    if (satellites.length > 0 && satellites[0].satlat != null) {
-        map.setView([satellites[0].satlat, satellites[0].satlng], 4);
+    async function aggiorna() {
+        await Promise.all(segnaposti.map(async (segnaposto, i) => {
+            try {
+                var risposta = await fetch(`/Search?handler=Satellite&satId=${satelliti[i].id}`);
+                var dati = await risposta.json();
+                segnaposto.setLatLng([dati.latitude, dati.longitude]);
+            } catch { }
+        }));
     }
+
+    aggiorna();
+    setInterval(aggiorna, 10000);
 </script>

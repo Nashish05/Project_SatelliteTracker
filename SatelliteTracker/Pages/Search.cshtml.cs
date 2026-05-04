@@ -45,4 +45,10 @@ public class SearchModel : PageModel
         }
     }
 
+    public async Task<IActionResult> OnGetSatellite(int satId)
+    {
+        var sat = await _service.GetSatellitePosition(satId);
+        return new JsonResult(sat);
+    }
+
 }
