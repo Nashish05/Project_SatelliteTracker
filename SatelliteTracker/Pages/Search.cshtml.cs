@@ -9,13 +9,17 @@ public class SearchModel : PageModel
 {
     private readonly SatelliteService _service;
     private readonly AppDbContext _context;
-    public IActionResult OnPost(int satId, string satName)
+
+    public IActionResult OnPost(int satId, string satName, double satLat, double satLng)
     {
-        _context.Satellites.Add(new Satellite { SatId = satId, SatName = satName });
+        _context.Satellites.Add(new Satellite { SatId = satId, SatName = satName, SatLat = satLat, SatLng = satLng });
         _context.SaveChanges();
         return RedirectToPage();
     }
 
+
+    [BindProperty]
+    public string SearchTerm { get; set; }
     public List<Satellite> Satellites { get; set; } = new();
 
     public SearchModel(SatelliteService service, AppDbContext context)
@@ -26,6 +30,19 @@ public class SearchModel : PageModel
 
     public async Task OnGetAsync()
     {
-        Satellites = await _service.GetSatellitesAsync();
+        var allSatellites = await _service.GetSatellitesAsync();
+
+        if (!string.IsNullOrEmpty(SearchTerm))
+        {
+            Satellites = allSatellites
+                .Where(s => s.SatName != null &&
+                            s.SatName.ToLower().Contains(SearchTerm.ToLower()))
+                .ToList();
+        }
+        else
+        {
+            Satellites = allSatellites;
+        }
     }
+
 }

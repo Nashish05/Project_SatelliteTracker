@@ -10,4 +10,10 @@ public class Satellite
 
     [JsonPropertyName("satid")]
     public int SatId { get; set; }
+
+    [JsonPropertyName("satlat")]
+    public double? SatLat { get; set; }
+
+    [JsonPropertyName("satlng")]
+    public double? SatLng { get; set; }
 }

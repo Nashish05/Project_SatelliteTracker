@@ -17,3 +17,28 @@
         </li>
     }
 </ul>
+<div id="map" style="height: 500px; margin-top:20px;"></div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    var satellites = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Satellites));
+
+    var map = L.map('map').setView([20, 0], 2);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png')
+        .addTo(map);
+
+    satellites.forEach(sat => {
+        if (sat.satlat != null && sat.satlng != null) {
+            L.marker([sat.satlat, sat.satlng])
+                .addTo(map)
+                .bindPopup("🛰️ " + sat.satname);
+        }
+    });
+
+    if (satellites.length > 0 && satellites[0].satlat != null) {
+        map.setView([satellites[0].satlat, satellites[0].satlng], 4);
+    }
+</script>

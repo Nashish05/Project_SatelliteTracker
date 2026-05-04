@@ -1,21 +1,43 @@
 ﻿@page
 @model SatelliteTracker.Pages.SearchModel
 
-<h2>Satelliti sopra Milano</h2>
+<h2>Cerca satellite</h2>
 
-<ul>
-    @foreach (var sat in Model.Satellites)
-    {
-        <li>
-            @sat.SatName (ID: @sat.SatId)
+<form method="get" style="margin-bottom:15px;">
+    <input type="text" name="SearchTerm"
+           value="@Model.SearchTerm"
+           placeholder="Nome satellite"
+           style="padding:6px; width:250px;" />
 
-            <form method="post" style="display:inline;">
-                <input type="hidden" name="satId" value="@sat.SatId" />
-                <input type="hidden" name="satName" value="@sat.SatName" />
-                <button type="submit">aggiungi preferiti</button>
-            </form>
-            
-        </li>
-    }
-</ul>
+    <button type="submit">Cerca</button>
+</form>
 
+@if (!string.IsNullOrEmpty(Model.SearchTerm))
+{
+    <p>Risultati: @Model.Satellites.Count</p>
+}
+
+@if (Model.Satellites.Count == 0)
+{
+    <p>Nessun risultato</p>
+}
+else
+{
+    <ul>
+        @foreach (var sat in Model.Satellites)
+        {
+            <li>
+                @sat.SatName (ID: @sat.SatId)
+
+                <form method="post" style="display:inline;">
+                    <input type="hidden" name="satId" value="@sat.SatId" />
+                    <input type="hidden" name="satName" value="@sat.SatName" />
+                    <input type="hidden" name="satLat" value="@sat.SatLat" />
+                    <input type="hidden" name="satLng" value="@sat.SatLng" />
+
+                    <button type="submit">Aggiungi</button>
+                </form>
+            </li>
+        }
+    </ul>
+}
