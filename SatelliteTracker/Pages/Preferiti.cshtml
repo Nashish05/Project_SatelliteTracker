@@ -1,22 +1,7 @@
 ﻿@page
 @model SatelliteTracker.Pages.PreferitiModel
 
-<h2>Satelliti Preferiti</h2>
 
-<ul>
-    @foreach (var sat in Model.Satellites)
-    {
-        <li>
-            @sat.SatName (ID: @sat.SatId)
-
-            <form method="post"  asp-page-handler="Remove" style="display:inline;">
-                <input type="hidden" name="satId" value="@sat.SatId"/>
-                <button type="submit">cancella</button>
-            </form>
-
-        </li>
-    }
-</ul>
 <div id="map" style="height: 500px; margin-top:20px;"></div>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -32,14 +17,20 @@
                         .Select(s => new { id = s.SatId, nome = s.SatName, lat = s.SatLat, lng = s.SatLng })
         ));
 
-    var segnaposti = satelliti.map(s =>
-        L.marker([s.lat, s.lng]).addTo(mappa).bindPopup("🛰️ " + s.nome)
+        var segnaposti = satelliti.map(s =>
+        L.marker([s.lat, s.lng])
+         .addTo(mappa)
+         .bindTooltip(s.nome, {
+             permanent: true,
+             direction: "top",
+             offset: [0, -10]
+         })
     );
 
     async function aggiorna() {
         await Promise.all(segnaposti.map(async (segnaposto, i) => {
             try {
-                var risposta = await fetch(`/Search?handler=Satellite&satId=${satelliti[i].id}`);
+              var risposta = await fetch(`/Search?handler=Satellite&satId=${satelliti[i].id}&lat=0&lng=0`);
                 var dati = await risposta.json();
                 segnaposto.setLatLng([dati.latitude, dati.longitude]);
             } catch { }
@@ -47,5 +38,5 @@
     }
 
     aggiorna();
-    setInterval(aggiorna, 10000);
+    setInterval(aggiorna, 5000);
 </script>

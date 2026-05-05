@@ -1,17 +1,32 @@
 ﻿@page
 @model SatelliteTracker.Pages.SearchModel
+<div style="display:flex; justify-content:center; align-items:center; height:100vh;">
+    <div style="text-align:center;">
+
+   
 
 <h2>Cerca satellite</h2>
 
-<form method="get" style="margin-bottom:15px;">
-    <input type="text" name="SearchTerm"
-           value="@Model.SearchTerm"
-           placeholder="Nome satellite"
-           style="padding:6px; width:250px;" />
+        <form method="get" style="margin-bottom:15px;">
 
-    <button type="submit">Cerca</button>
-</form>
+            <select name="ZonaSelezionata" style="padding:6px; margin-bottom:10px;">
+                <option value="">-- Seleziona zona --</option>
+                <option value="Europa" selected="@(Model.ZonaSelezionata == "Europa")">Europa</option>
+                <option value="America" selected="@(Model.ZonaSelezionata == "America")">America</option>
+                <option value="Asia" selected="@(Model.ZonaSelezionata == "Asia")">Asia</option>
+                <option value="Africa" selected="@(Model.ZonaSelezionata == "Africa")">Africa</option>
+            </select>
 
+            <br />
+
+            <input type="text" name="SearchTerm"
+                   value="@Model.SearchTerm"
+                   placeholder="Nome satellite"
+                   style="padding:6px; width:250px;" />
+
+            <button type="submit" class="btn">Cerca</button>
+
+        </form>
 @if (!string.IsNullOrEmpty(Model.SearchTerm))
 {
     <p>Risultati: @Model.Satellites.Count</p>
@@ -23,22 +38,52 @@
 }
 else
 {
+            <h2>Satelliti zona @Model.ZonaSelezionata</h2>
     <ul>
         @foreach (var sat in Model.Satellites)
         {
-            <li>
-                @sat.SatName (ID: @sat.SatId)
+                    <li class="listStyle">
+                        <span>@sat.SatName (ID: @sat.SatId)</span>
 
-                <form method="post" style="display:inline;">
-                    <input type="hidden" name="satId" value="@sat.SatId" />
-                    <input type="hidden" name="satName" value="@sat.SatName" />
-                    <input type="hidden" name="satLat" value="@sat.SatLat" />
-                    <input type="hidden" name="satLng" value="@sat.SatLng" />
+                        <form method="post" style="display:inline;">
+                            <input type="hidden" name="satId" value="@sat.SatId" />
+                            <input type="hidden" name="satName" value="@sat.SatName" />
 
-                    <button type="submit">Aggiungi</button>
-                </form>
-            </li>
+                            <input type="hidden" name="ZonaSelezionata" value="@Model.ZonaSelezionata" />
+                            <input type="hidden" name="SearchTerm" value="@Model.SearchTerm" />
+
+                            <button type="submit" class="btn">Aggiungi</button>
+                        </form>
+                    </li>
         }
        </ul>
 }
+    </div>
+</div>
 
+
+<style>
+    .btn {
+        padding: 8px 14px;
+        border-radius: 8px;
+        border: none;
+        background: linear-gradient(45deg, #00c6ff, #0072ff);
+        color: white;
+        cursor: pointer;
+    }
+
+        .btn:hover {
+            opacity: 0.8;
+        }
+
+    .listStyle{
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin: 10px 0;
+        max-width: 400px;
+
+    }
+
+    
+</style>

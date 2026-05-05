@@ -10,17 +10,27 @@ public class SearchModel : PageModel
     private readonly SatelliteService _service;
     private readonly AppDbContext _context;
 
-    public IActionResult OnPost(int satId, string satName, double satLat, double satLng)
-    {
-        _context.Satellites.Add(new Satellite { SatId = satId, SatName = satName, SatLat = satLat, SatLng = satLng });
-        _context.SaveChanges();
-        return RedirectToPage();
-    }
+    [BindProperty(SupportsGet = true)]
+    public string ZonaSelezionata { get; set; }
 
-
-    [BindProperty]
+    [BindProperty(SupportsGet = true)]
     public string SearchTerm { get; set; }
+
     public List<Satellite> Satellites { get; set; } = new();
+
+    private readonly List<Satellite> globalSatellites = new()
+    {
+        new Satellite { SatId = 25544, SatName = "ISS (ZARYA)" },
+        new Satellite { SatId = 20580, SatName = "HUBBLE" },
+        new Satellite { SatId = 25338, SatName = "NOAA 15" },
+        new Satellite { SatId = 28654, SatName = "NOAA 18" },
+        new Satellite { SatId = 33591, SatName = "TERRA" },
+        new Satellite { SatId = 27424, SatName = "AQUA" },
+        new Satellite { SatId = 37849, SatName = "SUOMI NPP" },
+        new Satellite { SatId = 43013, SatName = "TESS" },
+        new Satellite { SatId = 39084, SatName = "FENGYUN 3C" },
+        new Satellite { SatId = 41765, SatName = "TIANGONG-2" }
+    };
 
     public SearchModel(SatelliteService service, AppDbContext context)
     {
@@ -28,27 +38,47 @@ public class SearchModel : PageModel
         _context = context;
     }
 
-    public async Task OnGetAsync()
-    {
-        var allSatellites = await _service.GetSatellitesAsync();
 
-        if (!string.IsNullOrEmpty(SearchTerm))
-        {
-            Satellites = allSatellites
-                .Where(s => s.SatName != null &&
-                            s.SatName.ToLower().Contains(SearchTerm.ToLower()))
+    public void OnGet()
+    {
+        ZonaSelezionata ??= "Mondo";
+
+        Satellites = string.IsNullOrEmpty(SearchTerm)
+            ? globalSatellites
+            : globalSatellites
+                .Where(s => s.SatName.Contains(SearchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToList();
-        }
-        else
-        {
-            Satellites = allSatellites;
-        }
     }
 
-    public async Task<IActionResult> OnGetSatellite(int satId)
+
+    public async Task<IActionResult> OnPost(int satId, string satName)
     {
-        var sat = await _service.GetSatellitePosition(satId);
+        var satLive = await _service.GetSatellitePosition(satId, 0, 0);
+
+        if (!_context.Satellites.Any(s => s.SatId == satId))
+        {
+            _context.Satellites.Add(new Satellite
+            {
+                SatId = satId,
+                SatName = satName,
+                SatLat = satLive.latitude,
+                SatLng = satLive.longitude
+            });
+
+            await _context.SaveChangesAsync();
+        }
+
+        return RedirectToPage(new
+        {
+            ZonaSelezionata,
+            SearchTerm
+        });
+    }
+
+
+    public async Task<IActionResult> OnGetSatellite(int satId, double lat, double lng)
+    {
+        var sat = await _service.GetSatellitePosition(satId, lat, lng);
         return new JsonResult(sat);
     }
-
 }

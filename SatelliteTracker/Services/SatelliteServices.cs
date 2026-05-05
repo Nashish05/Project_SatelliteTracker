@@ -6,6 +6,12 @@ public class SatelliteService
     private readonly HttpClient _http;
     private readonly string apiKey = "LFZZKJ-2MZRQ3-24WB3R-5QBB";
 
+    public class Zona
+    {
+        public string Nome { get; set; }
+        public double Lat { get; set; }
+        public double Lng { get; set; }
+    }
     public SatelliteService(HttpClient http)
     {
         _http = http;
@@ -32,10 +38,8 @@ public class SatelliteService
 
         return data?.above ?? new List<Satellite>();
     }
-    public async Task<SatellitePosition> GetSatellitePosition(int satId)
+    public async Task<SatellitePosition> GetSatellitePosition(int satId, double lat, double lng)
     {
-        double lat = 45.4642;
-        double lng = 9.1900;
         string url = $"https://api.n2yo.com/rest/v1/satellite/positions/{satId}/{lat}/{lng}/0/1/&apiKey={apiKey}";
         var response = await _http.GetStringAsync(url);
         var options = new JsonSerializerOptions
@@ -50,5 +54,24 @@ public class SatelliteService
             latitude = pos.satlatitude,
             longitude = pos.satlongitude
         };
+    }
+
+    public async Task<List<Satellite>> GetSatellitesFromZone(double lat, double lng, int radius)
+    {
+        int alt = 0;
+        int category = 0;
+
+        string url = $"https://api.n2yo.com/rest/v1/satellite/above/{lat}/{lng}/{alt}/{radius}/{category}/&apiKey={apiKey}";
+
+        var response = await _http.GetStringAsync(url);
+
+        var options = new JsonSerializerOptions
+        {
+            PropertyNameCaseInsensitive = true
+        };
+
+        var data = JsonSerializer.Deserialize<ApiResponse>(response, options);
+
+        return data?.above ?? new List<Satellite>();
     }
 }
